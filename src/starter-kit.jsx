@@ -63,7 +63,7 @@ export class StarterKit extends React.Component {
     constructor(props) {
         super(props);
 
-        this.state = { version: { version: "unknown" }, images: [] };
+        this.state = { version: { version: "unknown" }, images: [], containers: [] };
 
         let podman = cockpit.channel({
             payload: "stream",
@@ -79,6 +79,10 @@ export class StarterKit extends React.Component {
                 varlinkCall(podman, "io.projectatomic.podman.ListImages")
                     .then(reply => this.setState({ images: reply.images }))
                     .catch(ex => console.error("Failed to do ListImages call:", JSON.stringify(ex)));
+
+                varlinkCall(podman, "io.projectatomic.podman.ListContainers")
+                    .then(reply => this.setState({ containers: reply.containers}))
+                    .catch(ex => console.error("Failed to do ListContainers call:", JSON.stringify(ex)));
             })
             .catch(ex => console.error("Failed to do GetVersion call:", JSON.stringify(ex)));
 
@@ -86,6 +90,7 @@ export class StarterKit extends React.Component {
 
     render() {
         let images = this.state.images.map(image => <li>{ image.repoTags.join(", ") } (created: {image.created})</li>);
+        let containers = this.state.containers.map(container => <li>{ container.command.join(", ")} </li> );
 
         return (
             <div className="container-fluid">
@@ -98,7 +103,15 @@ export class StarterKit extends React.Component {
                 <ul>
                     {images}
                 </ul>
+                <h3>Containers</h3>
+                <ul>
+                    {containers}
+                </ul>
+                <h3>foobar</h3>
+
             </div>
         );
+
     }
+
 }
